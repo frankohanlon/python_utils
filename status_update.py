@@ -5,13 +5,15 @@ import sys
 import os  
 indir = sys.argv[1]
 outcsv= sys.argv[2]
+
 if len(sys.argv) == 3 :
     print "Using station name from path, better to use field StationName from diag.json"
     outpath =outcsv.split("/")
-    outlog = "/home/bbusey/working_files/global_status/qc/" + outpath[-3] + ".txt"
+    outlog = "/var/site/global_status/qc/" + outpath[-3] + ".txt"
 else:
     # preferred method so file is linkable on main diagnostics page
-    outlog = "/home/bbusey/working_files/global_status/qc/" + sys.argv[3] + ".txt"
+    
+    outlog = "/var/site/global_status/qc/" + sys.argv[3] + ".txt"
 
 # this is going into the global status directory
 #indir='/home/bbusey/working_files/barrow/intense_A/outputs'
