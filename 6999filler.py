@@ -8,7 +8,7 @@ import pytz
 
 def diag_filecheck(curfile) :
     if curfile.find("datapro_runtime.csv") != -1 or curfile.find("_status.csv") !=-1 or curfile.find("delay.csv") !=-1 or curfile.find("site_process.csv") !=-1 :
-        print 'diagnostic file, exiting...'
+        #print 'diagnostic file, exiting...'
         sys.exit(1)
     return True
 
@@ -41,7 +41,7 @@ def main():
         elif cl_param[0] == '--help' :
             print """
                   To correctly use this python utility:
-                  $ python 6999filler.py --infile=/home/bbusey/working_files/data/outputs/battery.csv
+                  $ python 6999filler.py --infile=/full_path/data/outputs/battery.csv
                   """
             sys.exit(1)
 
@@ -64,6 +64,7 @@ def main():
     nextdata = datafile[-1].split(',')
     prevdate = curdata[0]
     nextdate = nextdata[0]
+
     try:
         (rYr, rMo, rDay, rHr, rMin, rSec) = time.strptime(prevdate, '"%Y-%m-%d %H:%M:%S"')[0:6]
     except:
@@ -85,6 +86,10 @@ def main():
     for row in datafile[4:] :
         curdata = row.split(',')
         curdate = curdata[0]
+        if len(curdate) == 19 :
+            print ("pandas file or data continuation, no gapping to be done")
+            sys.exit(1)
+
         (rYr, rMo, rDay, rHr, rMin, rSec) = time.strptime(curdate, '"%Y-%m-%d %H:%M:%S"')[0:6]
         readingTime = datetime.datetime(rYr, rMo, rDay, rHr, rMin, rSec)
         # tricky one here:  if you just do readingTime - pastTime then it just looks at the time of day.
