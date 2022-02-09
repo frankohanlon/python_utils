@@ -27,9 +27,9 @@ def main():
     try:
         extraparams = sys.argv[1]
     except IndexError:
-        print """Needs Some information to run.  Enter like this:
+        print ("""Needs Some information to run.  Enter like this:
              $ python tb_temp_mon.py --infile=/homez/bob_ss_toughbook/working_files/ss_status/ss_current_temp.txt --outdirectory=/homez/bob_ss_toughbook/working_files/ss_status/outputs/
-             """
+             """)
         sys.exit(1)
     for commandlinestuff in sys.argv :     
         cl_param = commandlinestuff.split('=')
@@ -38,21 +38,21 @@ def main():
                 
                 inputfile = cl_param[1]
                 if not os.path.exists(inputfile) :
-                    print 'problem finding input file, ', cl_param[0], '\n'
+                    print ('problem finding input file, ', cl_param[0], '\n')
             except:
-                print 'did not find valid input file'
+                print ('did not find valid input file')
                 sys.exit(1)
         elif cl_param[0] == '--timezone':
             try:
                 timezone = cl_param[1]
             except:
-                print 'did not find valid output directory, ', cl_param[0], '\n'
+                print ('did not find valid output directory, ', cl_param[0], '\n')
                 sys.exit(1)
         elif cl_param[0] == '--help' :
-            print """
+            print ("""
                   To correctly use this python utility:
                   $ python track_delay.py --infile=/home/bbusey/working_files/data/outputs/battery.csv --timezone=Etc/GMT+0
-                  """
+                  """)
             sys.exit(1)
 
 
@@ -65,7 +65,7 @@ def main():
         tempdata = ifile.readlines()
         ifile.close()
     except:
-        print 'problem opening %s for reading (input file)' % inputfile
+        print ('problem opening %s for reading (input file)' % inputfile)
         sys.exit(1)        
     lastline = tempdata[-1].split('\n')
 

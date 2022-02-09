@@ -15,9 +15,9 @@ def main():
     try:
         extraparams = sys.argv[1]
     except IndexError:
-        print """Needs Some information to run.  Enter like this:
+        print ("""Needs Some information to run.  Enter like this:
              $ python trackarrays.py --infile=/home/bbusey/working_files/data/outputs/battery.csv
-             """
+             """)
         sys.exit(1)
     for commandlinestuff in sys.argv :
         cl_param = commandlinestuff.split('=')
@@ -25,15 +25,15 @@ def main():
             try:
                 inputfile = cl_param[1]
                 if not os.path.exists(inputfile) :
-                    print 'problem finding input file, ', cl_param[0], '\n'
+                    print ('problem finding input file, ', cl_param[0], '\n')
             except:
-                print 'did not find valid input file'
+                print ('did not find valid input file')
                 sys.exit(1)
         elif cl_param[0] == '--help' :
-            print """
+            print ("""
                   To correctly use this python utility:
                   $ python 6999filler.py --infile=/home/bbusey/working_files/data/outputs/battery.csv
-                  """
+                  """)
             sys.exit(1)
 
 
@@ -46,7 +46,7 @@ def main():
         datafile = ifile.readlines()
         ifile.close()
     except:
-        print 'problem opening %s for reading (input file)' % inputfile
+        print ('problem opening %s for reading (input file)' % inputfile)
         sys.exit(1)
     
     arraylist= []
@@ -62,8 +62,8 @@ def main():
         
 
     for item in sorted(linearrays):
-        print item, ' ', linearrays[item]
-    print '\n'.join(arraylist)
+        print (item, ' ', linearrays[item])
+    print ('\n'.join(arraylist))
 ###########################################################
 # Execution Starts Here
 ###########################################################
