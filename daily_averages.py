@@ -28,13 +28,13 @@ def main():
         # sys.argv[0] = the name of the python program being executed.
         input_data_file = sys.argv[1]  # The Data File
     # 1) open the data files for reading / writing.    
-    print 'Source:  ', sys.argv[1]
+    print ('Source:  ', sys.argv[1])
     try: 
         hourly_input_file = open( input_data_file , 'r')
         all_input_data = hourly_input_file.readlines()
         hourly_input_file.close()
     except:
-        print 'problem opening %s for reading' % (input_data_file)
+        print ('problem opening %s for reading' % (input_data_file))
     last_date_str = []
     last_date = 0
     file_review = 0
@@ -54,7 +54,7 @@ def main():
     ## Check to see if the output file exists and has data in it already:
     if os.path.exists(daily_out_file) :
         try :
-            print 'Daily Output: ', daily_out_file
+            print ('Daily Output: ', daily_out_file)
             output_file = open(daily_out_file, 'r+')
             data_lines = output_file.readlines()
             last_line = data_lines[-1]
@@ -66,7 +66,7 @@ def main():
             last_date = float(last_date_str[0]) + (float(last_date_str[1]) + float(last_date_str[2])/32)/ 13 
             file_review = 1
         except :
-          print 'problem opening %s for appending' % (daily_out_file)
+          print ('problem opening %s for appending' % (daily_out_file))
     else:
         try :
             
@@ -83,7 +83,7 @@ def main():
             output_file.writelines(line)            
             last_date = -1
         except :
-            print 'problem opening %s for writing' % (daily_out_file)                
+            print ('problem opening %s for writing' % (daily_out_file))
         
     # oh, also need to check out the daily file for the last entry there.
     ##################################################

@@ -7,5 +7,5 @@ if len(sys.argv) == 3 :
     splitstring =sys.argv[2]
 
 pathlist = tempstring.split(splitstring)
-print pathlist[-1]
+print (pathlist[-1])
 
