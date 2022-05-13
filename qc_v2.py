@@ -16,8 +16,11 @@ I guess sitting here thinking I should file away to handle xls / xlsx / ods inde
 # of the items on this list, pyexcel_ods3 and arrow are not python default install items.
 
 # pip3 install arrow
-# pip3 pyexcel_ods3
-# pip3 openpyxl
+#pip3 install pyexcel
+#pip3 install pandas
+#pip3 install pyexcel-xls
+#pip3 install pyexcel-xlsx
+#pip3 install pyexcel-ods3
 
 import arrow
 import pyexcel
@@ -25,7 +28,7 @@ import pandas
 import os
 import argparse
 import sys
-import xlrd
+
 
 class source_spreadsheet () :
     """
@@ -73,32 +76,44 @@ class source_spreadsheet () :
         self.sheet_combined_list = []  # thinking for concatenation subselections maybe this will be faster.
 
         print('reading in spreadsheet')
-        # open the xls file:
+        # open the spreadsheet file:
         print(self.input_spreadsheet)
+        if self.spreadsheet_filetype  == 'xls' :
+            print('Unfortunately .xls no longer supported by primary library.\n\n  Please save spreadsheet as .xlsx format Excel or .ods format from LibreOffice\n\n')
         # open spreadsheet
         wb = pyexcel.get_sheet(file_name= self.input_spreadsheet)
 
 
-        for row in wb.row :
+        for row in wb.row: #[:20] :
             try:
                 # check if column A contains a datetime
-                temp_date = arrow.get(row[0])
+                # if row[0] is not a date we get booted here:
+                temp_date = arrow.get(row[0], tzinfo='Etc/GMT+0')
+
+                date_string = str(row[0]) # had some shenanigans with timezones and decimal dates using datetimes
                 temp_value = str(row[1])
                 temp_log = row[2]
+
                 # now I have loaded a row.
                 #self.sheet_date_list.append(temp_date)
+                # Need to do a bit more work
 
-                date_str = temp_date.strftime('"%Y-%m-%d %H:%M:%S"')
-                line_string = date_str + ',' + temp_value
+                if len(date_string) == 19 :
+                    date_string = '"' + date_string + '"'
+                elif len(date_string) == 26:
+                    date_string = '"' + date_string[:-7] + '"'
+                elif len(date_string) == 10 :
+                    date_string = '"' + date_string + ' 00:00:00"'
+                line_string = date_string + ',' + temp_value
                 self.sheet_numbers_list.append(temp_value)
-                self.sheet_date_list.append(temp_date.naive)
+                self.sheet_date_list.append(date_string)
                 self.sheet_combined_list.append(line_string)
             except:
                 # Column A is not a date but a comment.
+                #print('non date line', row[:])
                 pass
         self.sheet_date_list.sort()
         self.sheet_combined_list.sort()
-
 
 
 class input_timeseries () :
@@ -174,7 +189,7 @@ class input_timeseries () :
         full_date_list = []
         # hop through the lines... we don't care how big the header is here
         # or whether it is pandas format or csi format date value
-        for row in csv_lines:
+        for row in csv_lines[:]:
             row_num += 1
             temp = row.rstrip()
             row_list = temp.split(',')
@@ -211,9 +226,10 @@ class input_timeseries () :
                     # .naive at the end finishes the date as a datetime.
                     # pandas can't currently handle arrow objects.
                     # https://github.com/pandas-dev/pandas/issues/27817
-                    cur_date = arrow.get(date_temp, 'YYYY-MM-DD HH:mm:ss').naive
+                    temp_date = arrow.get(date_temp, 'YYYY-MM-DD HH:mm:ss', tzinfo='Etc/GMT+0')
+                    cur_date = temp_date.strftime('"%Y-%m-%d %H:%M:%S"')
                     if abs(float(row_list[1])) == 6999. :
-                        value_temp = 'NaN'
+                        value_temp = '6999.'
                     else:
                         value_temp = row_list[1]
                     # if we've made it this far then the row_list[0] is a date.
@@ -222,18 +238,14 @@ class input_timeseries () :
                     full_date_list.append(cur_date)
                     self.csv_date_list.append(cur_date)
                     self.csv_combined_list.append(line_string)
+
                 except:
+                    # for testing:
+                    #print('error: ', row_list)
                     pass
         # needed for setting things up later:
         self.csv_start_date = full_date_list[0]
         self.csv_end_date = full_date_list[-1]
-        self.start_year = int(full_date_list[0].strftime('%Y') )
-        self.end_year = int(full_date_list[-1].strftime('%Y') )  +1
-        # also compute interval here... and I suppose use self.csv_date_list[-1] and self.csv_date_list[-2]
-        # these are needed for doing the last X days type output.
-        diff = arrow.get(full_date_list[-1]) - arrow.get(full_date_list[-2])
-        (junk_day, second_interval)  = divmod(diff.total_seconds(), 86400)
-        self.csv_time_interval = 86400 / second_interval
 
 
 def main() :
@@ -268,7 +280,6 @@ def main() :
     source_csv = input_timeseries()
     source_csv.set_prop('input_csv', input_csv)
     source_csv.read_in_data_file_combined()
-    print (source_csv.csv_end_date)
     qc_spreadsheet = source_spreadsheet()
     qc_spreadsheet.set_prop('corrections_spreadsheet', corrections_spreadsheet)
     qc_spreadsheet.read_in_spreadsheet_data_file()
