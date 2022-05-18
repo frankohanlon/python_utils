@@ -116,7 +116,7 @@ class input_timeseries () :
                     # https://github.com/pandas-dev/pandas/issues/27817
                     cur_date = arrow.get(date_temp, 'YYYY-MM-DD HH:mm:ss').naive
                     if abs(float(row_list[1])) == 6999. :
-                        value_temp = 'NaN'
+                        value_temp = '6999.0' #'NaN'
                     else:
                         value_temp = row_list[1]
                     line_string = ','.join([date_temp, value_temp])
@@ -132,6 +132,7 @@ class input_timeseries () :
         # also compute interval here... and I suppose use self.csv_date_list[-1] and self.csv_date_list[-2]
         # these are needed for doing the last X days type output.
         diff = arrow.get(full_date_list[-1]) - arrow.get(full_date_list[-2])
+        # currently fails for daily data...
         (junk_day, second_interval)  = divmod(diff.total_seconds(), 86400)
         self.csv_time_interval = 86400 / second_interval
 
@@ -338,7 +339,7 @@ def main() :
         # file saving...
         full_file_output_name = output_file_path + output_filename_root + '_tail.csv'
         if output_format_csi == False:
-            df_stuff.to_csv(full_file_output_name)
+            df_stuff.to_csv(full_file_output_name, na_rep='6999.00')
         else:
             # Close enough.
             full_header = [','.join(header_line1), ','.join(header_line2), ','.join(header_line3),
