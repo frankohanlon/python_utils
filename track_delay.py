@@ -2,14 +2,14 @@
 
 """
 This short program looks at the last time stamp for hte last data element in an input file and computes how old this data is.
-Pass the time zone, the 
+Pass the time zone, the
 There are also two arguments:
 --infile=/path/to/filename_of_data.csv
 --timezone=Etc/GMT+0    (for GMT)
 --infile=/path/to/filename_of_data.csv --timezone=Etc/GMT+0
 Note, the output file will be named 'delay.csv' and will be put in the same directory as /path/to/ above.
 """
-import os 
+import os
 import sys
 import datetime
 import time
@@ -23,7 +23,7 @@ def main():
     ###################################################################################
     inputfile = ''
     timezone = ''
-    
+
     try:
         extraparams = sys.argv[1]
     except IndexError:
@@ -31,11 +31,11 @@ def main():
              $ python tb_temp_mon.py --infile=/homez/bob_ss_toughbook/working_files/ss_status/ss_current_temp.txt --outdirectory=/homez/bob_ss_toughbook/working_files/ss_status/outputs/
              """)
         sys.exit(1)
-    for commandlinestuff in sys.argv :     
+    for commandlinestuff in sys.argv :
         cl_param = commandlinestuff.split('=')
         if cl_param[0] == '--infile' :
             try:
-                
+
                 inputfile = cl_param[1]
                 if not os.path.exists(inputfile) :
                     print ('problem finding input file, ', cl_param[0], '\n')
@@ -65,8 +65,8 @@ def main():
         tempdata = ifile.readlines()
         ifile.close()
     except:
-        print ('problem opening %s for reading (input file)' % inputfile)
-        sys.exit(1)        
+        print 'problem opening %s for reading (input file)' % inputfile
+        sys.exit(1)
     lastline = tempdata[-1].split('\n')
 
     #######################################################################
@@ -79,7 +79,7 @@ def main():
     else:
         ofile = open( out_file_name, 'w')
         ofile.writelines('"TOA5","Station"\n"TIMESTAMP","Delay"\n"TS","Days"\n","Smp"\n')
-    
+
     ###################################################################################
     ##  Compute data oldness                                                         ##
     ###################################################################################
@@ -90,8 +90,8 @@ def main():
     timeDiff = datetime.datetime.now(pytz.timezone(timezone)) - readingTime
     timeDiffDays = (timeDiff.days * 86400 + timeDiff.seconds)/86400.0
     newval = '%5.2f' % (timeDiffDays)
-   
-    
+
+
     ###################################################################################
     ##  Output to file                                                               ##
     ###################################################################################
@@ -99,7 +99,7 @@ def main():
     logline = ','.join([currentTime, newval]) + '\n'
     ofile.writelines(logline)
     ofile.close()
-        
+
 
 ###########################################################
 # Execution Starts Here
