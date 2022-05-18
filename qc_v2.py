@@ -88,6 +88,7 @@ class source_spreadsheet () :
             try:
                 # check if column A contains a datetime
                 # if row[0] is not a date we get booted here:
+                # temp_date isn't used for anything else.
                 temp_date = arrow.get(row[0], tzinfo='Etc/GMT+0')
 
                 date_string = str(row[0]) # had some shenanigans with timezones and decimal dates using datetimes
@@ -97,11 +98,15 @@ class source_spreadsheet () :
                 # now I have loaded a row.
                 #self.sheet_date_list.append(temp_date)
                 # Need to do a bit more work
-
+                # One ugly bit, the number to date conversion in the spreadsheet seems to be doing a lot of
+                # 10:59 for time instead of 11:00 once I switched from xls to ods.
+                # probably could adjust further
+                # could use arrow but asterisk the dates are converted to localtime with arrow (utc-8 or -9)
+                # so it's possible it isn't quite as easy as it seems.
                 if len(date_string) == 19 :
-                    date_string = '"' + date_string + '"'
+                    date_string = '"' + date_string[:-2] + '00"'
                 elif len(date_string) == 26:
-                    date_string = '"' + date_string[:-7] + '"'
+                    date_string = '"' + date_string[:-9] + '00"'
                 elif len(date_string) == 10 :
                     date_string = '"' + date_string + ' 00:00:00"'
                 line_string = date_string + ',' + temp_value
@@ -109,12 +114,13 @@ class source_spreadsheet () :
                 self.sheet_date_list.append(date_string)
                 self.sheet_combined_list.append(line_string)
             except:
-                # Column A is not a date but a comment.
-                #print('non date line', row[:])
+                if row[0] != '' :
+                    # Column A is not a date but a comment.
+                    print('non date line', row[:])
+
                 pass
         self.sheet_date_list.sort()
         self.sheet_combined_list.sort()
-
 
 class input_timeseries () :
     """
@@ -240,12 +246,18 @@ class input_timeseries () :
                     self.csv_combined_list.append(line_string)
 
                 except:
-                    # for testing:
-                    #print('error: ', row_list)
+                    # with a print() here this seems to be just catching csv header rows.
                     pass
         # needed for setting things up later:
         self.csv_start_date = full_date_list[0]
         self.csv_end_date = full_date_list[-1]
+        #self.start_year = int(full_date_list[0].strftime('%Y') )
+        #self.end_year = int(full_date_list[-1].strftime('%Y') )  +1
+        # also compute interval here... and I suppose use self.csv_date_list[-1] and self.csv_date_list[-2]
+        # these are needed for doing the last X days type output.
+        #diff = arrow.get(full_date_list[-1]) - arrow.get(full_date_list[-2])
+        #(junk_day, second_interval)  = divmod(diff.total_seconds(), 86400)
+        #self.csv_time_interval = 86400 / second_interval
 
 
 def main() :
@@ -284,20 +296,24 @@ def main() :
     qc_spreadsheet.set_prop('corrections_spreadsheet', corrections_spreadsheet)
     qc_spreadsheet.read_in_spreadsheet_data_file()
 
-
-    # Data and spreadsheet are now read in.  Next up, swap out the bad data for the good.
-    for sample in qc_spreadsheet.sheet_date_list:
+    for sample in qc_spreadsheet.sheet_date_list:#[:5]:
         # check to see if the date is in the full data set(it should be)
+        #print(type(sample), sample)
+        #print(type(source_csv.csv_date_list[3]), source_csv.csv_date_list[-7003])
         if sample in source_csv.csv_date_list :
             # If it is, then proceed with swap.
             source_index = source_csv.csv_date_list.index(sample)
             qc_index = qc_spreadsheet.sheet_date_list.index(sample)
+            #print(sample, '  ',qc_index,  qc_spreadsheet.sheet_combined_list[qc_index], '  ', source_index, '  ', source_csv.csv_combined_list[source_index])
             source_csv.csv_combined_list[source_index]= qc_spreadsheet.sheet_combined_list[qc_index]
+        else:
+            print(sample, '  not found  ')
     # at this point we've run through the full file.  time to save to csv again.
     out_csv_list = [source_csv.input_csv_full_line_1, source_csv.input_csv_full_line_2, source_csv.input_csv_full_line_3, source_csv.input_csv_full_line_4]
     for row in source_csv.csv_combined_list :
         out_csv_list.append(row)
     out_csv_text = '\n'.join(out_csv_list)
+
     fh = open(source_csv.input_csv, 'w')
     fh.write(out_csv_text)
     fh.close()
