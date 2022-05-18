@@ -313,7 +313,7 @@ def main() :
     for row in source_csv.csv_combined_list :
         out_csv_list.append(row)
     out_csv_text = '\n'.join(out_csv_list)
-
+    out_csv_text += '\n'
     fh = open(source_csv.input_csv, 'w')
     fh.write(out_csv_text)
     fh.close()
