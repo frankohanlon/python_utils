@@ -76,8 +76,11 @@ class input_timeseries () :
         self.csv_date_list = []  # this will be a list of arrow objects
         self.csv_numbers_list = []  # this will hold the data.
         self.csv_combined_list = []  # thinking for concatenation subselections maybe this will be faster.
-
-        dfile = open(self.input_csv)
+        try:
+            dfile = open(self.input_csv)
+        except:
+            print('File Not Found:  ', self.input_csv)
+            sys.exit()
         csv_lines = dfile.readlines()
         dfile.close()
         row_num = 0
@@ -110,11 +113,15 @@ class input_timeseries () :
             # now onward, to the data.
             if len(row_list) == 2:
                 date_temp = row_list[0].lstrip('"').rstrip('"')
+                process= True
                 try:
                     # .naive at the end finishes the date as a datetime.
                     # pandas can't currently handle arrow objects.
                     # https://github.com/pandas-dev/pandas/issues/27817
                     cur_date = arrow.get(date_temp, 'YYYY-MM-DD HH:mm:ss').naive
+                except:
+                    process=False
+                if process==True:
                     if abs(float(row_list[1])) == 6999. :
                         value_temp = '6999.0' #'NaN'
                     else:
@@ -122,8 +129,8 @@ class input_timeseries () :
                     line_string = ','.join([date_temp, value_temp])
                     full_date_list.append(cur_date)
                     self.csv_combined_list.append(line_string)
-                except:
-                    pass
+                #except:
+                #    pass
         # needed for setting things up later:
         self.csv_start_date = full_date_list[0]
         self.csv_end_date = full_date_list[-1]
