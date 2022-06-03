@@ -43,7 +43,7 @@ def interval_update(data_list) :
         #print(i, timeDiff, next_date, curdate)
         diff_list.append(timeDiff)
     new_timeDiff = statistics.mode(diff_list)
-    print(new_timeDiff, next_date)
+    #print(new_timeDiff, curdate, next_date)
     return new_timeDiff
 
 def main():
@@ -96,6 +96,7 @@ def main():
     ###################################################################################
     ## grab the first couple datetimes from the file to initialize the output interval variable
     ###################################################################################
+    print('\n\nAnalyzing:    ', inputfile)
     curdata = datafile[4].split(',')
     nextdata = datafile[5].split(',')
     prevdate = curdata[0]
@@ -175,10 +176,11 @@ def main():
             if next_interval != output_interval:
                 print('new interval: ', len(output_data), next_interval, output_interval, row)
                 output_interval = next_interval
-
+            else:
+                print('gap:  ', gap_start, '    ', curdate)
         output_data.append(row)
         pastTime = readingTime
-
+        gap_start = pastTime.strftime('"%Y-%m-%d %H:%M:%S"')
     ## Done looping through the data list.
     output_string = ''.join(output_data)
     try:
