@@ -295,7 +295,10 @@ def main() :
             for station in glom_full['data_files']:
                 station_object = input_timeseries()
                 station_object.set_prop('input_csv', station['input_csv'])
-                station_object.set_prop('alt_header_title', station['alt_header_title'])
+                try:
+                    station_object.set_prop('alt_header_title', station['alt_header_title'])
+                except:
+                    pass
                 station_object.read_in_data_file_combined()
                 station_object.subset_year(str(year))
                 station_object.convert_2_pandas()
