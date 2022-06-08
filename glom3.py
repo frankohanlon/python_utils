@@ -284,29 +284,34 @@ def main() :
         readings_per_day = station_object.csv_time_interval
         rows_to_tail = int(readings_per_day * days)
     del station_object
+    station_list = []
     if save_year == True:
+        for station in glom_full['data_files']:
+            station_object = input_timeseries()
+            station_object.set_prop('input_csv', station['input_csv'])
+            try:
+                station_object.set_prop('alt_header_title', station['alt_header_title'])
+            except:
+                pass
+            station_object.read_in_data_file_combined()
+            station_list.append(station_object)
+
         for year in range(start_year, end_year) :
+            print(' Year:  ', str(year))
             df_for_concat = []
             if output_format_csi == True:
                 header_line1 = ['TOA5','']
                 header_line2 = ['TIMESTAMP']
                 header_line3 = ['TS']
                 header_line4 = ['']
-            for station in glom_full['data_files']:
-                station_object = input_timeseries()
-                station_object.set_prop('input_csv', station['input_csv'])
-                try:
-                    station_object.set_prop('alt_header_title', station['alt_header_title'])
-                except:
-                    pass
-                station_object.read_in_data_file_combined()
-                station_object.subset_year(str(year))
-                station_object.convert_2_pandas()
-                df_for_concat.append(station_object.csv_df)
+            for station in station_list:
+                station.subset_year(str(year))
+                station.convert_2_pandas()
+                df_for_concat.append(station.csv_df)
                 if output_format_csi == True :
-                    header_line2.append(station_object.input_csv_header_line_2)
-                    header_line3.append(station_object.input_csv_header_line_3)
-                    header_line4.append(station_object.input_csv_header_line_4)
+                    header_line2.append(station.input_csv_header_line_2)
+                    header_line3.append(station.input_csv_header_line_3)
+                    header_line4.append(station.input_csv_header_line_4)
             # ok, files are read in...
             # now, group and save to file again.
             df_stuff = pandas.concat(df_for_concat, axis=1)
