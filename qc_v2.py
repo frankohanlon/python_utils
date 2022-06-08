@@ -114,7 +114,7 @@ class source_spreadsheet () :
                 self.sheet_date_list.append(date_string)
                 self.sheet_combined_list.append(line_string)
             except:
-                if row[0] != '' :
+                if row[0] != '' and row[0] != 'break':
                     # Column A is not a date but a comment.
                     print('non date line', row[:])
 
