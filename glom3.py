@@ -179,7 +179,9 @@ class input_timeseries () :
             value_temp = float(row_list[1])
             local_csv_subset_list.append([cur_date, value_temp])
         self.csv_subset_list = copy.deepcopy(local_csv_subset_list)
-
+        #If a bit of optional debugging flags are added this is a good statement to include:
+        # different length lists are okay but duplicated date times in a time series will generate an error
+#        print(len(local_csv_subset_list), '    ', self.input_csv)
     def subset_tail(self, tail):
         """
         Pull the last X number of days.
