@@ -28,7 +28,7 @@ import pandas
 import os
 import argparse
 import sys
-
+import datetime
 
 class source_spreadsheet () :
     """
@@ -85,15 +85,14 @@ class source_spreadsheet () :
 
 
         for row in wb.row: #[:20] :
-            try:
-                # check if column A contains a datetime
-                # if row[0] is not a date we get booted here:
-                # temp_date isn't used for anything else.
-                temp_date = arrow.get(row[0], tzinfo='Etc/GMT+0')
-
+            # What was here previously didn't catch all the date times.  Slight rewrite.
+            if isinstance(row[0], datetime.date) == True :
                 date_string = str(row[0]) # had some shenanigans with timezones and decimal dates using datetimes
                 temp_value = str(row[1])
-                temp_log = row[2]
+                try:
+                    temp_log = row[2]
+                except:
+                    temp_log = 'No correction reason listed'
 
                 # now I have loaded a row.
                 #self.sheet_date_list.append(temp_date)
@@ -113,12 +112,12 @@ class source_spreadsheet () :
                 self.sheet_numbers_list.append(temp_value)
                 self.sheet_date_list.append(date_string)
                 self.sheet_combined_list.append(line_string)
-            except:
+            else:
                 if row[0] != '' and row[0] != 'break':
                     # Column A is not a date but a comment.
                     print('non date line', row[:])
 
-                pass
+
         self.sheet_date_list.sort()
         self.sheet_combined_list.sort()
 
